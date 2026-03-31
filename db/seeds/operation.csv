@@ -1,0 +1,4 @@
+operation_id,operation_name,ideal_cycle_time_sec
+OP_001,Aluminium housing rough machining,480.0
+OP_002,Aluminium housing finish machining,540.0
+OP_003,Bracket 5-axis drilling and milling,360.0

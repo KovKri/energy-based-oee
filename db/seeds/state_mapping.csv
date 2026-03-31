@@ -1,0 +1,5 @@
+detailed_state_code,detailed_state_name,state_tag,oee_loss_type
+RUN,Running,termelő,
+IDLE,Idle,nem termelő,
+MICRO_STOP,Micro-stop,nem termelő,Performance
+FAILURE,Failure,nem termelő és áll,Availability

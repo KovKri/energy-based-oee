@@ -1,0 +1,4 @@
+cycle_id,machine_id,operation_id,cycle_start_ts,cycle_end_ts,actual_cycle_time_sec,part_result,scrap_reason
+CYCLE_0001,DMU50_001,OP_001,2026-03-01 06:05:00+00:00,2026-03-01 06:13:00+00:00,480.0,good,
+CYCLE_0002,DMU50_001,OP_001,2026-03-01 06:15:00+00:00,2026-03-01 06:24:00+00:00,540.0,scrap,surface_defect
+CYCLE_0003,DMU50_001,OP_002,2026-03-01 06:30:00+00:00,2026-03-01 06:39:00+00:00,540.0,good,
