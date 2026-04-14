@@ -11,6 +11,16 @@ services:
     volumes:
       - ./db/init:/docker-entrypoint-initdb.d
       - timescale_data:/var/lib/postgresql/data
+  grafana:
+    image: grafana/grafana
+    container_name: energy_oee_grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - db
 
 volumes:
   timescale_data:
+  grafana_data:

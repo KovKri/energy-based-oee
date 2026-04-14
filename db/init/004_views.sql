@@ -231,7 +231,12 @@ SELECT
         WHEN COALESCE(csh.good_parts, 0) > 0
         THEN COALESCE(seh.energy_total_kwh, 0) / csh.good_parts
         ELSE 0
-    END AS system_energy_per_good_part_kwh
+    END AS system_energy_per_good_part_kwh,
+    CASE
+        WHEN COALESCE(csh.scrap_parts, 0) > 0
+        THEN csh.scrap_cycle_energy_kwh / csh.scrap_parts
+        ELSE 0
+    END AS energy_per_scrap_part_kwh
 FROM all_buckets ab
 LEFT JOIN state_energy_summary_hourly seh
     ON seh.bucket_start = ab.bucket_start
@@ -245,3 +250,27 @@ LEFT JOIN cycle_stats_hourly csh
 ORDER BY
     ab.bucket_start,
     ab.machine_id;
+
+
+
+CREATE OR REPLACE VIEW detailed_state_energy_summary_hourly AS
+SELECT
+    time_bucket('1 hour', ts) AS bucket_start,
+    machine_id,
+    detailed_state_code,
+    state_tag,
+    COUNT(*) AS sample_count,
+    COALESCE(SUM(delta_energy_kwh), 0) AS energy_kwh,
+    COALESCE(AVG(power_kw), 0) AS avg_power_kw,
+    COALESCE(MIN(power_kw), 0) AS min_power_kw,
+    COALESCE(MAX(power_kw), 0) AS max_power_kw
+FROM energy_enriched
+GROUP BY
+    time_bucket('1 hour', ts),
+    machine_id,
+    detailed_state_code,
+    state_tag
+ORDER BY
+    bucket_start,
+    machine_id,
+    detailed_state_code;
