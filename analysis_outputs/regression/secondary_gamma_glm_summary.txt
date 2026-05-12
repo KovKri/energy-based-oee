@@ -1,0 +1,19 @@
+                       Generalized Linear Model Regression Results                        
+==========================================================================================
+Dep. Variable:     cycle_energy_per_good_part_kwh   No. Observations:                  181
+Model:                                        GLM   Df Residuals:                      177
+Model Family:                               Gamma   Df Model:                            3
+Link Function:                                Log   Scale:                       0.0023382
+Method:                                      IRLS   Log-Likelihood:                 168.26
+Date:                            Fri, 01 May 2026   Deviance:                      0.41206
+Time:                                    08:02:26   Pearson chi2:                    0.414
+No. Iterations:                                 6   Pseudo R-squ. (CS):             0.1048
+Covariance Type:                        nonrobust                                         
+================================================================================
+                   coef    std err          z      P>|z|      [0.025      0.975]
+--------------------------------------------------------------------------------
+const            2.1366      0.394      5.429      0.000       1.365       2.908
+availability     0.1061      0.096      1.105      0.269      -0.082       0.294
+performance     -1.6361      0.387     -4.223      0.000      -2.395      -0.877
+quality          0.1223      0.124      0.987      0.324      -0.121       0.365
+================================================================================

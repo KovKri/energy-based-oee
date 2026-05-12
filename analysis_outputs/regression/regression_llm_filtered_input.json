@@ -1,0 +1,109 @@
+{
+  "significance_level": 0.05,
+  "allowed_feature_names": [
+    "availability",
+    "performance",
+    "quality"
+  ],
+  "interpretation_constraints": {
+    "do_not_introduce_new_variables": true,
+    "do_not_infer_new_business_concepts": true,
+    "do_not_claim_causality_beyond_model_results": true,
+    "only_significant_results_may_be_used_as_main_conclusions": true,
+    "non_significant_results_must_be_marked_as_uncertain": true
+  },
+  "primary_model": {
+    "target": "system_energy_per_good_part_kwh",
+    "model_type": "gamma_glm",
+    "metrics": {
+      "n_obs": 181,
+      "pseudo_r2": 0.1991404130457664,
+      "aic": 255.91828778778472
+    },
+    "significant_effects": [
+      {
+        "feature": "quality",
+        "beta": -1.5010846554451522,
+        "estimated_pct_change_for_1pp": -1.4898745409283154,
+        "direction": "csökkenti",
+        "p_value": 9.991385332871182e-09,
+        "absolute_effect_rank": 1.0,
+        "is_significant": true
+      },
+      {
+        "feature": "availability",
+        "beta": -0.5512854518939567,
+        "estimated_pct_change_for_1pp": -0.5497686622069176,
+        "direction": "csökkenti",
+        "p_value": 0.0065887929252999,
+        "absolute_effect_rank": 2.0,
+        "is_significant": true
+      }
+    ],
+    "non_significant_effects": [
+      {
+        "feature": "performance",
+        "beta": -0.1116090628219757,
+        "estimated_pct_change_for_1pp": -0.1115468030721156,
+        "direction": "csökkenti",
+        "p_value": 0.891586888552881,
+        "absolute_effect_rank": 3.0,
+        "is_significant": false
+      }
+    ]
+  },
+  "secondary_model": {
+    "target": "cycle_energy_per_good_part_kwh",
+    "model_type": "gamma_glm",
+    "metrics": {
+      "n_obs": 181,
+      "pseudo_r2": 0.1020723153467463,
+      "aic": -328.5102708409022
+    },
+    "significant_effects": [
+      {
+        "feature": "performance",
+        "beta": -1.6360612928453089,
+        "estimated_pct_change_for_1pp": -1.6227504998474696,
+        "direction": "csökkenti",
+        "p_value": 2.4081644075632047e-05,
+        "absolute_effect_rank": 1.0,
+        "is_significant": true
+      }
+    ],
+    "non_significant_effects": [
+      {
+        "feature": "quality",
+        "beta": 0.1223036034872738,
+        "estimated_pct_change_for_1pp": 0.1223784248443715,
+        "direction": "növeli",
+        "p_value": 0.3236441194120973,
+        "absolute_effect_rank": 2.0,
+        "is_significant": false
+      },
+      {
+        "feature": "availability",
+        "beta": 0.1060758427257563,
+        "estimated_pct_change_for_1pp": 0.1061321230459988,
+        "direction": "növeli",
+        "p_value": 0.2691385924437638,
+        "absolute_effect_rank": 3.0,
+        "is_significant": false
+      }
+    ]
+  },
+  "vif": [
+    {
+      "feature": "availability",
+      "vif": 1.0171664286691926
+    },
+    {
+      "feature": "performance",
+      "vif": 1.0222998969155423
+    },
+    {
+      "feature": "quality",
+      "vif": 1.0082603067157792
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "aggregation_hours": 4,
+  "min_good_parts_for_regression": 2,
+  "primary_target": "system_energy_per_good_part_kwh",
+  "secondary_target": "cycle_energy_per_good_part_kwh",
+  "raw_rows": 720,
+  "aggregated_rows_after_filtering": 181
+}

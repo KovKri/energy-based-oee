@@ -12,7 +12,7 @@ RANDOM_SEED = 42
 RNG = np.random.default_rng(RANDOM_SEED)
 
 START_TS = datetime(2026, 3, 1, 6, 0, tzinfo=UTC)
-HOURS_TO_GENERATE = 168
+HOURS_TO_GENERATE = 720
 END_TS = START_TS + timedelta(hours=HOURS_TO_GENERATE)
 
 MACHINE_ID = "DMU50_001"

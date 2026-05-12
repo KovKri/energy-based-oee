@@ -1,0 +1,13 @@
+target,model_type,feature,beta,estimated_pct_change_for_1pp,direction,p_value,absolute_effect_rank
+system_energy_per_good_part_kwh,log_ols,quality,-1.5302679029809934,-1.518618800230731,csökkenti,4.0514155420164356e-07,1.0
+system_energy_per_good_part_kwh,log_ols,availability,-0.5223996967262388,-0.5210375624711605,csökkenti,0.013811601881978624,2.0
+system_energy_per_good_part_kwh,log_ols,performance,-0.2038336416677182,-0.20362604197696754,csökkenti,0.8140062307133612,3.0
+system_energy_per_good_part_kwh,gamma_glm,quality,-1.5010846554451522,-1.4898745409283154,csökkenti,9.991385332871182e-09,1.0
+system_energy_per_good_part_kwh,gamma_glm,availability,-0.5512854518939567,-0.5497686622069176,csökkenti,0.006588792925299962,2.0
+system_energy_per_good_part_kwh,gamma_glm,performance,-0.11160906282197573,-0.11154680307211562,csökkenti,0.891586888552881,3.0
+cycle_energy_per_good_part_kwh,log_ols,performance,-1.62033428721989,-1.607277487595582,csökkenti,2.7724630890387042e-05,1.0
+cycle_energy_per_good_part_kwh,log_ols,quality,0.1244781243498262,0.12455563052311547,növeli,0.36594952425241545,2.0
+cycle_energy_per_good_part_kwh,log_ols,availability,0.1072135189914517,0.10727101323009247,növeli,0.28912117125022596,3.0
+cycle_energy_per_good_part_kwh,gamma_glm,performance,-1.6360612928453089,-1.6227504998474696,csökkenti,2.4081644075632047e-05,1.0
+cycle_energy_per_good_part_kwh,gamma_glm,quality,0.12230360348727382,0.12237842484437156,növeli,0.32364411941209736,2.0
+cycle_energy_per_good_part_kwh,gamma_glm,availability,0.10607584272575633,0.10613212304599884,növeli,0.2691385924437638,3.0

@@ -1,0 +1,27 @@
+                                   OLS Regression Results                                  
+===========================================================================================
+Dep. Variable:     system_energy_per_good_part_kwh   R-squared:                       0.198
+Model:                                         OLS   Adj. R-squared:                  0.184
+Method:                              Least Squares   F-statistic:                     11.35
+Date:                             Fri, 01 May 2026   Prob (F-statistic):           7.61e-07
+Time:                                     08:02:26   Log-Likelihood:                 160.88
+No. Observations:                              181   AIC:                            -313.8
+Df Residuals:                                  177   BIC:                            -301.0
+Df Model:                                        3                                         
+Covariance Type:                               HC3                                         
+================================================================================
+                   coef    std err          z      P>|z|      [0.025      0.975]
+--------------------------------------------------------------------------------
+const            3.2010      0.856      3.739      0.000       1.523       4.879
+availability    -0.5224      0.212     -2.462      0.014      -0.938      -0.107
+performance     -0.2038      0.866     -0.235      0.814      -1.902       1.494
+quality         -1.5303      0.302     -5.067      0.000      -2.122      -0.938
+==============================================================================
+Omnibus:                        3.655   Durbin-Watson:                   2.156
+Prob(Omnibus):                  0.161   Jarque-Bera (JB):                3.621
+Skew:                           0.304   Prob(JB):                        0.164
+Kurtosis:                       2.669   Cond. No.                         265.
+==============================================================================
+
+Notes:
+[1] Standard Errors are heteroscedasticity robust (HC3)

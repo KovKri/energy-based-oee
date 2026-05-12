@@ -1,0 +1,246 @@
+{
+  "significance_level": 0.05,
+  "primary_model": {
+    "target": "system_energy_per_good_part_kwh",
+    "model_type": "gamma_glm",
+    "metrics": {
+      "target": "system_energy_per_good_part_kwh",
+      "model_type": "gamma_glm",
+      "n_obs": 181,
+      "aic": 255.91828778778472,
+      "bic": null,
+      "rsquared": null,
+      "rsquared_adj": null,
+      "deviance": 1.808538967500158,
+      "null_deviance": 2.2582472595205507,
+      "pseudo_r2": 0.1991404130457664
+    },
+    "significant_coefficients": [
+      {
+        "feature": "quality",
+        "coefficient": -1.5010846554451522,
+        "p_value": 9.991385332871182e-09,
+        "ci_lower": -2.0144568440068413,
+        "ci_upper": -0.9877124668834634,
+        "is_significant": true,
+        "direction": "csökkenti"
+      },
+      {
+        "feature": "availability",
+        "coefficient": -0.5512854518939567,
+        "p_value": 0.0065887929252999,
+        "ci_lower": -0.9489749072098724,
+        "ci_upper": -0.1535959965780411,
+        "is_significant": true,
+        "direction": "csökkenti"
+      },
+      {
+        "feature": "performance",
+        "coefficient": -0.1116090628219757,
+        "p_value": 0.891586888552881,
+        "ci_lower": -1.7165639897551312,
+        "ci_upper": 1.49334586411118,
+        "is_significant": false,
+        "direction": "csökkenti"
+      }
+    ],
+    "sensitivity": [
+      {
+        "feature": "quality",
+        "beta": -1.5010846554451522,
+        "estimated_pct_change_for_1pp": -1.4898745409283154,
+        "direction": "csökkenti",
+        "p_value": 9.991385332871182e-09,
+        "absolute_effect_rank": 1.0,
+        "is_significant": true
+      },
+      {
+        "feature": "availability",
+        "beta": -0.5512854518939567,
+        "estimated_pct_change_for_1pp": -0.5497686622069176,
+        "direction": "csökkenti",
+        "p_value": 0.0065887929252999,
+        "absolute_effect_rank": 2.0,
+        "is_significant": true
+      },
+      {
+        "feature": "performance",
+        "beta": -0.1116090628219757,
+        "estimated_pct_change_for_1pp": -0.1115468030721156,
+        "direction": "csökkenti",
+        "p_value": 0.891586888552881,
+        "absolute_effect_rank": 3.0,
+        "is_significant": false
+      }
+    ],
+    "univariate_gamma_glm": [
+      {
+        "feature": "quality",
+        "beta": -1.5285735086628476,
+        "p_value": 8.754099447099585e-09,
+        "ci_lower": -2.049313287125116,
+        "ci_upper": -1.007833730200579,
+        "estimated_pct_change_for_1pp": -1.5169501231663052,
+        "direction": "csökkenti",
+        "aic": 259.5790765164252,
+        "pseudo_r2": 0.1643742137019537,
+        "is_significant": true
+      },
+      {
+        "feature": "availability",
+        "beta": -0.6087996244418706,
+        "p_value": 0.0053383799483528,
+        "ci_lower": -1.0371125382664443,
+        "ci_upper": -0.1804867106172968,
+        "estimated_pct_change_for_1pp": -0.6069501945390021,
+        "direction": "csökkenti",
+        "aic": 284.3288572700184,
+        "pseudo_r2": 0.0419031768960538,
+        "is_significant": true
+      },
+      {
+        "feature": "performance",
+        "beta": 0.0058945294940557,
+        "p_value": 0.9947909765952953,
+        "ci_lower": -1.7637168555048004,
+        "ci_upper": 1.775505914492912,
+        "estimated_pct_change_for_1pp": 0.0058947032248513,
+        "direction": "növeli",
+        "aic": 292.15430442205377,
+        "pseudo_r2": 2.512361672035724e-07,
+        "is_significant": false
+      }
+    ]
+  },
+  "secondary_model": {
+    "target": "cycle_energy_per_good_part_kwh",
+    "model_type": "gamma_glm",
+    "metrics": {
+      "target": "cycle_energy_per_good_part_kwh",
+      "model_type": "gamma_glm",
+      "n_obs": 181,
+      "aic": -328.5102708409022,
+      "bic": null,
+      "rsquared": null,
+      "rsquared_adj": null,
+      "deviance": 0.4120613923651877,
+      "null_deviance": 0.4589026481840912,
+      "pseudo_r2": 0.1020723153467463
+    },
+    "significant_coefficients": [
+      {
+        "feature": "performance",
+        "coefficient": -1.6360612928453089,
+        "p_value": 2.4081644075632047e-05,
+        "ci_lower": -2.395341402909531,
+        "ci_upper": -0.8767811827810867,
+        "is_significant": true,
+        "direction": "csökkenti"
+      },
+      {
+        "feature": "availability",
+        "coefficient": 0.1060758427257563,
+        "p_value": 0.2691385924437638,
+        "ci_lower": -0.082065075337687,
+        "ci_upper": 0.2942167607891996,
+        "is_significant": false,
+        "direction": "növeli"
+      },
+      {
+        "feature": "quality",
+        "coefficient": 0.1223036034872738,
+        "p_value": 0.3236441194120973,
+        "ci_lower": -0.1205650810432456,
+        "ci_upper": 0.3651722880177933,
+        "is_significant": false,
+        "direction": "növeli"
+      }
+    ],
+    "sensitivity": [
+      {
+        "feature": "performance",
+        "beta": -1.6360612928453089,
+        "estimated_pct_change_for_1pp": -1.6227504998474696,
+        "direction": "csökkenti",
+        "p_value": 2.4081644075632047e-05,
+        "absolute_effect_rank": 1.0,
+        "is_significant": true
+      },
+      {
+        "feature": "quality",
+        "beta": 0.1223036034872738,
+        "estimated_pct_change_for_1pp": 0.1223784248443715,
+        "direction": "növeli",
+        "p_value": 0.3236441194120973,
+        "absolute_effect_rank": 2.0,
+        "is_significant": false
+      },
+      {
+        "feature": "availability",
+        "beta": 0.1060758427257563,
+        "estimated_pct_change_for_1pp": 0.1061321230459988,
+        "direction": "növeli",
+        "p_value": 0.2691385924437638,
+        "absolute_effect_rank": 3.0,
+        "is_significant": false
+      }
+    ],
+    "univariate_gamma_glm": [
+      {
+        "feature": "performance",
+        "beta": -1.6154890682034886,
+        "p_value": 2.49855917646062e-05,
+        "ci_lower": -2.3666997778845835,
+        "ci_upper": -0.8642783585223938,
+        "estimated_pct_change_for_1pp": -1.60251002919769,
+        "direction": "csökkenti",
+        "aic": -330.23012597682555,
+        "pseudo_r2": 0.0904636021987143,
+        "is_significant": true
+      },
+      {
+        "feature": "quality",
+        "beta": 0.1679095424682726,
+        "p_value": 0.1934598308328327,
+        "ci_lower": -0.0851615451722125,
+        "ci_upper": 0.4209806301087578,
+        "estimated_pct_change_for_1pp": 0.1680505894732675,
+        "direction": "növeli",
+        "aic": -314.75133835954966,
+        "pseudo_r2": 0.0093682976246233,
+        "is_significant": false
+      },
+      {
+        "feature": "availability",
+        "beta": 0.0605248344627903,
+        "p_value": 0.5447038861668627,
+        "ci_lower": -0.1353204983645535,
+        "ci_upper": 0.2563701672901342,
+        "estimated_pct_change_for_1pp": 0.0605431544365764,
+        "direction": "növeli",
+        "aic": -313.4217662218316,
+        "pseudo_r2": 0.0020565976123706,
+        "is_significant": false
+      }
+    ]
+  },
+  "vif": [
+    {
+      "feature": "availability",
+      "vif": 1.0171664286691926
+    },
+    {
+      "feature": "performance",
+      "vif": 1.0222998969155423
+    },
+    {
+      "feature": "quality",
+      "vif": 1.0082603067157792
+    }
+  ],
+  "draft_key_messages": {
+    "primary_main_message": "A főmodell alapján 1 százalékpontos quality javulás várhatóan 1.490%-kal csökkenti az egy jó darabra jutó teljes rendszerenergia-fogyasztást.",
+    "secondary_main_message": "A ciklusalapú modell alapján 1 százalékpontos performance javulás várhatóan 1.623%-kal csökkenti az egy jó darabra jutó ciklusenergia-fogyasztást.",
+    "comparison_message": "A két célváltozó összevetése alapján a rendszer szintű energiaintenzitást elsősorban a(z) quality befolyásolja, míg a ciklusalapú energiaintenzitásban a(z) performance szerepe erősebb."
+  }
+}

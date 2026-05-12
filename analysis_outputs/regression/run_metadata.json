@@ -1,0 +1,11 @@
+{
+  "features": [
+    "availability",
+    "performance",
+    "quality"
+  ],
+  "primary_target": "system_energy_per_good_part_kwh",
+  "secondary_target": "cycle_energy_per_good_part_kwh",
+  "primary_rows_used": 181,
+  "secondary_rows_used": 181
+}
