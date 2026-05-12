@@ -65,7 +65,7 @@ def get_sig_and_nonsig_features(model_data: dict) -> tuple[list[str], list[str]]
     return significant, non_significant
 
 
-def build_primary_explanation(sig_features: list[str], nonsig_features: list[str]) -> str:
+def build_primary_explanation(sig_features: list[str]) -> str:
     if "quality" in sig_features and "availability" in sig_features:
         return (
             "A teljes rendszerenergia / jó darab esetében a minőség és a rendelkezésre állás "
@@ -85,7 +85,7 @@ def build_primary_explanation(sig_features: list[str], nonsig_features: list[str
     )
 
 
-def build_secondary_explanation(sig_features: list[str], nonsig_features: list[str]) -> str:
+def build_secondary_explanation(sig_features: list[str]) -> str:
     if "performance" in sig_features:
         return (
             "A ciklusenergia / jó darab esetében a teljesítmény javítása "
@@ -102,6 +102,39 @@ def build_secondary_explanation(sig_features: list[str], nonsig_features: list[s
     return (
         "A ciklusenergia / jó darab esetében a modell most nem mutatott egyértelmű, "
         "kiemelhető tényezőt."
+    )
+
+
+def build_sensitivity_message(model_data: dict) -> str:
+    significant_rows = [
+        row for row in model_data["sensitivity"]
+        if row["is_significant"]
+    ]
+
+    if not significant_rows:
+        return "A modell alapján most nem emelhető ki egyértelmű szenzitivitási megállapítás."
+
+    top_row = min(significant_rows, key=lambda x: x["absolute_effect_rank"])
+    feature_hu = hu_feature_name(top_row["feature"])
+    pct = abs(float(top_row["estimated_pct_change_for_1pp"]))
+
+    if model_data["target"] == "system_energy_per_good_part_kwh":
+        return (
+            f"A főmodell alapján 1 százalékpontos {feature_hu}javulás "
+            f"várhatóan kb. {pct:.2f}%-kal csökkentheti az egy jó darabra jutó "
+            f"teljes rendszerenergia-fogyasztást."
+        )
+
+    if model_data["target"] == "cycle_energy_per_good_part_kwh":
+        return (
+            f"A ciklusalapú modell alapján 1 százalékpontos {feature_hu}javulás "
+            f"várhatóan kb. {pct:.2f}%-kal csökkentheti az egy jó darabra jutó "
+            f"ciklusenergia-fogyasztást."
+        )
+
+    return (
+        f"A modell alapján 1 százalékpontos {feature_hu}javulás "
+        f"várhatóan kb. {pct:.2f}%-os kedvező változással járhat."
     )
 
 
@@ -132,15 +165,16 @@ def build_row(scope: str, model_data: dict) -> dict:
 
     if scope == "primary":
         display_order = 1
-        explanation = build_primary_explanation(sig_features, nonsig_features)
+        explanation = build_primary_explanation(sig_features)
     else:
         display_order = 2
-        explanation = build_secondary_explanation(sig_features, nonsig_features)
+        explanation = build_secondary_explanation(sig_features)
 
     significant_features_text = hu_list([hu_feature_name(f) for f in sig_features])
     non_significant_features_text = hu_list([hu_feature_name(f) for f in nonsig_features])
 
     technical_note = build_technical_note(model_data, sig_features, nonsig_features)
+    sensitivity_message = build_sensitivity_message(model_data)
 
     return {
         "model_scope": scope,
@@ -155,6 +189,7 @@ def build_row(scope: str, model_data: dict) -> dict:
         "headline": "",
         "explanation": explanation,
         "technical_note": technical_note,
+        "sensitivity_message": sensitivity_message,
     }
 
 
@@ -181,7 +216,8 @@ def upsert_dashboard_rows(rows: list[dict]) -> None:
         non_significant_features,
         headline,
         explanation,
-        technical_note
+        technical_note,
+        sensitivity_message
     )
     VALUES (
         %(model_scope)s,
@@ -196,7 +232,8 @@ def upsert_dashboard_rows(rows: list[dict]) -> None:
         %(non_significant_features)s,
         %(headline)s,
         %(explanation)s,
-        %(technical_note)s
+        %(technical_note)s,
+        %(sensitivity_message)s
     )
     ON CONFLICT (model_scope) DO UPDATE SET
         display_order = EXCLUDED.display_order,
@@ -210,7 +247,8 @@ def upsert_dashboard_rows(rows: list[dict]) -> None:
         non_significant_features = EXCLUDED.non_significant_features,
         headline = EXCLUDED.headline,
         explanation = EXCLUDED.explanation,
-        technical_note = EXCLUDED.technical_note;
+        technical_note = EXCLUDED.technical_note,
+        sensitivity_message = EXCLUDED.sensitivity_message;
     """
 
     with psycopg.connect(
@@ -240,6 +278,7 @@ def main() -> None:
     for row in rows:
         print(f"[{row['model_scope']}] {row['target_label']}")
         print(f"Explanation: {row['explanation']}")
+        print(f"Sensitivity: {row['sensitivity_message']}")
         print(f"Technical note: {row['technical_note']}")
         print()
 
