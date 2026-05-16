@@ -1,12 +1,11 @@
 import json
-import os
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import psycopg
-from dotenv import load_dotenv
 
+from db_config import DatabaseConfig
 from regression_config import (
     AGGREGATION_HOURS,
     MIN_GOOD_PARTS_FOR_REGRESSION,
@@ -22,13 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 def load_regression_base_hourly() -> pd.DataFrame:
-    load_dotenv()
-
-    db_name = os.getenv("POSTGRES_DB")
-    db_user = os.getenv("POSTGRES_USER")
-    db_password = os.getenv("POSTGRES_PASSWORD")
-    db_port = os.getenv("POSTGRES_PORT", "5432")
-    db_host = "localhost"
+    config = DatabaseConfig.from_env()
 
     query = """
     SELECT
@@ -58,13 +51,7 @@ def load_regression_base_hourly() -> pd.DataFrame:
     ORDER BY bucket_start, machine_id;
     """
 
-    with psycopg.connect(
-        host=db_host,
-        port=db_port,
-        dbname=db_name,
-        user=db_user,
-        password=db_password,
-    ) as conn:
+    with psycopg.connect(**config.to_psycopg_kwargs()) as conn:
         df = pd.read_sql_query(query, conn)
 
     return df
@@ -77,7 +64,6 @@ def aggregate_regression_input(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     df["bucket_start"] = pd.to_datetime(df["bucket_start"], utc=True)
 
-    # Konfigurálható aggregáció
     df["agg_bucket_start"] = df["bucket_start"].dt.floor(f"{AGGREGATION_HOURS}h")
 
     grouped = (
@@ -100,7 +86,6 @@ def aggregate_regression_input(df: pd.DataFrame) -> pd.DataFrame:
 
     result = grouped.rename(columns={"agg_bucket_start": "bucket_start"})
 
-    # KPI-k újraszámítása az aggregált nyers komponensekből
     result["availability"] = np.where(
         result["planned_time_sec"] > 0,
         (result["planned_time_sec"] - result["availability_loss_sec"]) / result["planned_time_sec"],
@@ -150,10 +135,8 @@ def aggregate_regression_input(df: pd.DataFrame) -> pd.DataFrame:
         0.0,
     )
 
-    # Szűrés a minimális jó darabszám alapján
     result = result[result["good_parts"] >= MIN_GOOD_PARTS_FOR_REGRESSION].copy()
 
-    # Hasznos oszlopsorrend
     result = result[
         [
             "bucket_start",

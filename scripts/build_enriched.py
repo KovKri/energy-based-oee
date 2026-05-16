@@ -1,25 +1,19 @@
-import os
 from pathlib import Path
 
 import psycopg
-from dotenv import load_dotenv
+
+from db_config import DatabaseConfig
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 def main() -> None:
-    load_dotenv()
-
-    db_name = os.getenv("POSTGRES_DB")
-    db_user = os.getenv("POSTGRES_USER")
-    db_password = os.getenv("POSTGRES_PASSWORD")
-    db_port = os.getenv("POSTGRES_PORT", "5432")
-    db_host = "localhost"
+    config = DatabaseConfig.from_env()
 
     print("Build enriched layer started.")
     print(f"Project base directory: {BASE_DIR}")
-    print(f"Connecting to database: {db_name} on {db_host}:{db_port}")
+    print(f"Connecting to database: {config.dbname} on {config.host}:{config.port}")
 
     truncate_energy_enriched_sql = "TRUNCATE TABLE energy_enriched;"
     truncate_cycle_summary_sql = "TRUNCATE TABLE cycle_energy_summary;"
@@ -76,7 +70,7 @@ def main() -> None:
     LEFT JOIN cycle_event ce
         ON ce.machine_id = eb.machine_id
        AND eb.ts >= ce.cycle_start_ts
-       AND eb.ts <= ce.cycle_end_ts
+       AND eb.ts < ce.cycle_end_ts
     ORDER BY eb.machine_id, eb.ts;
     """
 
@@ -102,7 +96,7 @@ def main() -> None:
     LEFT JOIN energy_enriched ee
         ON ee.machine_id = ce.machine_id
        AND ee.ts >= ce.cycle_start_ts
-       AND ee.ts <= ce.cycle_end_ts
+       AND ee.ts < ce.cycle_end_ts
     GROUP BY
         ce.cycle_id,
         ce.machine_id,
@@ -113,13 +107,7 @@ def main() -> None:
     ORDER BY ce.cycle_start_ts;
     """
 
-    with psycopg.connect(
-        host=db_host,
-        port=db_port,
-        dbname=db_name,
-        user=db_user,
-        password=db_password,
-    ) as conn:
+    with psycopg.connect(**config.to_psycopg_kwargs()) as conn:
         with conn.cursor() as cur:
             cur.execute(truncate_cycle_summary_sql)
             cur.execute(truncate_energy_enriched_sql)

@@ -1,9 +1,9 @@
-import os
 from pathlib import Path
 
 import pandas as pd
+
+from db_config import DatabaseConfig
 import psycopg
-from dotenv import load_dotenv
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -16,19 +16,31 @@ def null_if_nan(value):
     return value
 
 
-def main() -> None:
-    load_dotenv()
+def parse_bool(value) -> bool:
+    if pd.isna(value):
+        return False
 
-    db_name = os.getenv("POSTGRES_DB")
-    db_user = os.getenv("POSTGRES_USER")
-    db_password = os.getenv("POSTGRES_PASSWORD")
-    db_port = os.getenv("POSTGRES_PORT", "5432")
-    db_host = "localhost"
+    if isinstance(value, bool):
+        return value
+
+    normalized = str(value).strip().lower()
+
+    if normalized in {"true", "1", "yes", "y"}:
+        return True
+
+    if normalized in {"false", "0", "no", "n"}:
+        return False
+
+    raise ValueError(f"Invalid boolean value: {value}")
+
+
+def main() -> None:
+    config = DatabaseConfig.from_env()
 
     print("Data loader started.")
     print(f"Project base directory: {BASE_DIR}")
     print(f"Seeds directory: {SEEDS_DIR}")
-    print(f"Connecting to database: {db_name} on {db_host}:{db_port}")
+    print(f"Connecting to database: {config.dbname} on {config.host}:{config.port}")
 
     machine_path = SEEDS_DIR / "machine.csv"
     operation_path = SEEDS_DIR / "operation.csv"
@@ -57,13 +69,7 @@ def main() -> None:
     print(f"Loaded CSV: {energy_measurement_path}")
     print(f"energy_measurement rows in CSV: {len(energy_measurement_df)}")
 
-    with psycopg.connect(
-        host=db_host,
-        port=db_port,
-        dbname=db_name,
-        user=db_user,
-        password=db_password,
-    ) as conn:
+    with psycopg.connect(**config.to_psycopg_kwargs()) as conn:
         with conn.cursor() as cur:
             cur.execute(
                 """
@@ -155,7 +161,7 @@ def main() -> None:
                         row.detailed_state_code,
                         row.state_tag,
                         null_if_nan(row.reason_code),
-                        bool(row.is_planned_stop),
+                        parse_bool(row.is_planned_stop),
                         null_if_nan(row.idle_reason),
                     ),
                 )

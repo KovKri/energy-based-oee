@@ -1,25 +1,19 @@
-import os
 from pathlib import Path
 
 import psycopg
-from dotenv import load_dotenv
+
+from db_config import DatabaseConfig
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 def main() -> None:
-    load_dotenv()
-
-    db_name = os.getenv("POSTGRES_DB")
-    db_user = os.getenv("POSTGRES_USER")
-    db_password = os.getenv("POSTGRES_PASSWORD")
-    db_port = os.getenv("POSTGRES_PORT", "5432")
-    db_host = "localhost"
+    config = DatabaseConfig.from_env()
 
     print("KPI validation started.")
     print(f"Project base directory: {BASE_DIR}")
-    print(f"Connecting to database: {db_name} on {db_host}:{db_port}")
+    print(f"Connecting to database: {config.dbname} on {config.host}:{config.port}")
 
     sql = """
     WITH energy_stats AS (
@@ -84,13 +78,7 @@ def main() -> None:
     CROSS JOIN cycle_stats cs;
     """
 
-    with psycopg.connect(
-        host=db_host,
-        port=db_port,
-        dbname=db_name,
-        user=db_user,
-        password=db_password,
-    ) as conn:
+    with psycopg.connect(**config.to_psycopg_kwargs()) as conn:
         with conn.cursor() as cur:
             cur.execute(sql)
             row = cur.fetchone()

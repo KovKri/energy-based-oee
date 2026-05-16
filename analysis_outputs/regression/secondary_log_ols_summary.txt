@@ -3,8 +3,8 @@
 Dep. Variable:     cycle_energy_per_good_part_kwh   R-squared:                       0.101
 Model:                                        OLS   Adj. R-squared:                  0.086
 Method:                             Least Squares   F-statistic:                     6.476
-Date:                            Fri, 01 May 2026   Prob (F-statistic):           0.000349
-Time:                                    08:02:26   Log-Likelihood:                 294.04
+Date:                            Sat, 16 May 2026   Prob (F-statistic):           0.000349
+Time:                                    04:29:20   Log-Likelihood:                 294.04
 No. Observations:                             181   AIC:                            -580.1
 Df Residuals:                                 177   BIC:                            -567.3
 Df Model:                                       3                                         

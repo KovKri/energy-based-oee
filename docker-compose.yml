@@ -1,6 +1,6 @@
 services:
   db:
-    image: timescale/timescaledb:latest-pg17
+    image: timescale/timescaledb@sha256:6a76fb806373ea6b5225339fc8e9792cbc9e8c59bd48fba84b6b9e3b32a9976d
     container_name: energy_oee_db
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
@@ -11,8 +11,9 @@ services:
     volumes:
       - ./db/init:/docker-entrypoint-initdb.d
       - timescale_data:/var/lib/postgresql/data
+
   grafana:
-    image: grafana/grafana
+    image: grafana/grafana@sha256:83749231c3835e390a3144e5e940203e42b9589761f20ef3169c716e734ad505
     container_name: energy_oee_grafana
     ports:
       - "3000:3000"

@@ -1,9 +1,9 @@
 import json
-import os
 from pathlib import Path
 
 import psycopg
-from dotenv import load_dotenv
+
+from db_config import DatabaseConfig
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -51,6 +51,11 @@ def hu_list(items: list[str]) -> str:
     return f"{', '.join(items[:-1])} és {items[-1]}"
 
 
+def feature_improvement_phrase(feature: str) -> str:
+    feature_hu = hu_feature_name(feature)
+    return f"a {feature_hu} javulása"
+
+
 def get_sig_and_nonsig_features(model_data: dict) -> tuple[list[str], list[str]]:
     significant = []
     non_significant = []
@@ -68,40 +73,53 @@ def get_sig_and_nonsig_features(model_data: dict) -> tuple[list[str], list[str]]
 def build_primary_explanation(sig_features: list[str]) -> str:
     if "quality" in sig_features and "availability" in sig_features:
         return (
-            "A teljes rendszerenergia / jó darab esetében a minőség és a rendelkezésre állás "
-            "javítása csökkentheti az energiaintenzitást."
+            "A teljes rendszerenergia / jó darab mutató esetében a minőség és a "
+            "rendelkezésre állás a legfontosabb tényezők. Ha ezek javulnak, az "
+            "energiaintenzitás csökkenhet."
         )
 
     sig_hu = [hu_feature_name(f) for f in sig_features]
+    if len(sig_hu) == 1:
+        return (
+            f"A teljes rendszerenergia / jó darab mutató esetében a {sig_hu[0]} "
+            f"a legfontosabb tényező. Ha javul, az energiaintenzitás csökkenhet."
+        )
+
     if sig_hu:
         return (
-            f"A teljes rendszerenergia / jó darab esetében a {hu_list(sig_hu)} "
-            f"javítása csökkentheti az energiaintenzitást."
+            f"A teljes rendszerenergia / jó darab mutató esetében a {hu_list(sig_hu)} "
+            f"a legfontosabb tényezők. Ha ezek javulnak, az energiaintenzitás csökkenhet."
         )
 
     return (
-        "A teljes rendszerenergia / jó darab esetében a modell most nem mutatott egyértelmű, "
-        "kiemelhető tényezőt."
+        "A teljes rendszerenergia / jó darab mutató esetében a modell most nem mutatott "
+        "egyértelműen kiemelhető tényezőt."
     )
 
 
 def build_secondary_explanation(sig_features: list[str]) -> str:
     if "performance" in sig_features:
         return (
-            "A ciklusenergia / jó darab esetében a teljesítmény javítása "
-            "csökkentheti az energiaintenzitást."
+            "A ciklusenergia / jó darab mutató esetében a teljesítmény a legfontosabb "
+            "tényező. Ha javul, az energiaintenzitás csökkenhet."
         )
 
     sig_hu = [hu_feature_name(f) for f in sig_features]
+    if len(sig_hu) == 1:
+        return (
+            f"A ciklusenergia / jó darab mutató esetében a {sig_hu[0]} "
+            f"a legfontosabb tényező. Ha javul, az energiaintenzitás csökkenhet."
+        )
+
     if sig_hu:
         return (
-            f"A ciklusenergia / jó darab esetében a {hu_list(sig_hu)} "
-            f"javítása csökkentheti az energiaintenzitást."
+            f"A ciklusenergia / jó darab mutató esetében a {hu_list(sig_hu)} "
+            f"a legfontosabb tényezők. Ha ezek javulnak, az energiaintenzitás csökkenhet."
         )
 
     return (
-        "A ciklusenergia / jó darab esetében a modell most nem mutatott egyértelmű, "
-        "kiemelhető tényezőt."
+        "A ciklusenergia / jó darab mutató esetében a modell most nem mutatott "
+        "egyértelműen kiemelhető tényezőt."
     )
 
 
@@ -115,26 +133,27 @@ def build_sensitivity_message(model_data: dict) -> str:
         return "A modell alapján most nem emelhető ki egyértelmű szenzitivitási megállapítás."
 
     top_row = min(significant_rows, key=lambda x: x["absolute_effect_rank"])
-    feature_hu = hu_feature_name(top_row["feature"])
+    feature = top_row["feature"]
+    improvement_text = feature_improvement_phrase(feature)
     pct = abs(float(top_row["estimated_pct_change_for_1pp"]))
 
     if model_data["target"] == "system_energy_per_good_part_kwh":
         return (
-            f"A főmodell alapján 1 százalékpontos {feature_hu}javulás "
-            f"várhatóan kb. {pct:.2f}%-kal csökkentheti az egy jó darabra jutó "
-            f"teljes rendszerenergia-fogyasztást."
+            f"A főmodell alapján {improvement_text} 1 százalékponttal várhatóan "
+            f"kb. {pct:.2f}%-kal csökkentheti az egy jó darabra jutó teljes "
+            f"rendszerenergia-fogyasztást."
         )
 
     if model_data["target"] == "cycle_energy_per_good_part_kwh":
         return (
-            f"A ciklusalapú modell alapján 1 százalékpontos {feature_hu}javulás "
+            f"A ciklusalapú modell alapján {improvement_text} 1 százalékponttal "
             f"várhatóan kb. {pct:.2f}%-kal csökkentheti az egy jó darabra jutó "
             f"ciklusenergia-fogyasztást."
         )
 
     return (
-        f"A modell alapján 1 százalékpontos {feature_hu}javulás "
-        f"várhatóan kb. {pct:.2f}%-os kedvező változással járhat."
+        f"A modell alapján {improvement_text} 1 százalékponttal várhatóan "
+        f"kb. {pct:.2f}%-os kedvező változással járhat."
     )
 
 
@@ -194,13 +213,7 @@ def build_row(scope: str, model_data: dict) -> dict:
 
 
 def upsert_dashboard_rows(rows: list[dict]) -> None:
-    load_dotenv()
-
-    db_name = os.getenv("POSTGRES_DB")
-    db_user = os.getenv("POSTGRES_USER")
-    db_password = os.getenv("POSTGRES_PASSWORD")
-    db_port = os.getenv("POSTGRES_PORT", "5432")
-    db_host = "localhost"
+    config = DatabaseConfig.from_env()
 
     query = """
     INSERT INTO regression_dashboard_summary (
@@ -251,13 +264,7 @@ def upsert_dashboard_rows(rows: list[dict]) -> None:
         sensitivity_message = EXCLUDED.sensitivity_message;
     """
 
-    with psycopg.connect(
-        host=db_host,
-        port=db_port,
-        dbname=db_name,
-        user=db_user,
-        password=db_password,
-    ) as conn:
+    with psycopg.connect(**config.to_psycopg_kwargs()) as conn:
         with conn.cursor() as cur:
             for row in rows:
                 cur.execute(query, row)
