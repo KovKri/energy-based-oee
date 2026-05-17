@@ -281,7 +281,7 @@ docker exec -i energy_oee_db psql -U energy_user -d energy_oee -v ON_ERROR_STOP=
 
 ## Ismert korlátok
 
-- Az energiaallokáció jelenleg mintapont-alapú közelítést használ. A `delta_energy_kwh` érték a két mérési pont közötti energiafelhasználást reprezentálja, de a hozzárendelés jelenleg az aktuális mintapont időbélyege alapján történik.
+- Az energiaallokáció jelenleg mintapont-alapú közelítést használ. A `delta_energy_kwh` érték a két mérési pont közötti energiafelhasználást reprezentálja, és elsődlegesen a kumulált energiamérés egymást követő mintái közötti különbségéből számolódik. Ha a kumulált mérés nem áll rendelkezésre, vagy a mérő reset / hibás csökkenés miatt a különbség nem értelmezhető, akkor a rendszer teljesítményalapú fallback számítást használ (`power_kw * sample_interval_sec / 3600`). A hozzárendelés jelenleg az aktuális mintapont időbélyege alapján történik.
 - A dashboardot kiszolgáló aggregációk jelenleg normál SQL view-kra épülnek. Production környezetben ezek TimescaleDB continuous aggregate formában is megvalósíthatók.
 - Az állapotlogika egy része még SQL oldali szabályokra támaszkodik, ezért további általánosítás későbbi refaktorálási lehetőség.
 

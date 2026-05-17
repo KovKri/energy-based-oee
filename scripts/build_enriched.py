@@ -48,9 +48,14 @@ def main() -> None:
         CASE
             WHEN eb.energy_kwh_cumulative IS NOT NULL
                  AND eb.prev_energy_kwh IS NOT NULL
+                 AND eb.energy_kwh_cumulative >= eb.prev_energy_kwh
             THEN eb.energy_kwh_cumulative - eb.prev_energy_kwh
+
             WHEN eb.sample_interval_sec IS NOT NULL
+                 AND eb.sample_interval_sec > 0
+                 AND eb.power_kw IS NOT NULL
             THEN eb.power_kw * (eb.sample_interval_sec / 3600.0)
+
             ELSE NULL
         END AS delta_energy_kwh,
         mse.detailed_state_code,

@@ -5,8 +5,8 @@ Model:                                         GLM   Df Residuals:              
 Model Family:                                Gamma   Df Model:                            3
 Link Function:                                 Log   Scale:                        0.010447
 Method:                                       IRLS   Log-Likelihood:                -123.96
-Date:                             Sat, 16 May 2026   Deviance:                       1.8085
-Time:                                     04:29:20   Pearson chi2:                     1.85
+Date:                             Sun, 17 May 2026   Deviance:                       1.8085
+Time:                                     01:44:11   Pearson chi2:                     1.85
 No. Iterations:                                  8   Pseudo R-squ. (CS):             0.2117
 Covariance Type:                         nonrobust                                         
 ================================================================================
