@@ -4,6 +4,7 @@ from pathlib import Path
 import psycopg
 
 from db_config import DatabaseConfig
+from regression_config import PRIMARY_TARGET, SECONDARY_TARGET
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -17,8 +18,8 @@ FEATURE_LABELS = {
 }
 
 TARGET_LABELS = {
-    "system_energy_per_good_part_kwh": "Teljes rendszerenergia / jó darab",
-    "cycle_energy_per_good_part_kwh": "Ciklusenergia / jó darab",
+    PRIMARY_TARGET: "Teljes rendszerenergia / jó darab",
+    SECONDARY_TARGET: "Ciklusenergia / jó darab",
 }
 
 MODEL_LABELS = {
@@ -137,14 +138,14 @@ def build_sensitivity_message(model_data: dict) -> str:
     improvement_text = feature_improvement_phrase(feature)
     pct = abs(float(top_row["estimated_pct_change_for_1pp"]))
 
-    if model_data["target"] == "system_energy_per_good_part_kwh":
+    if model_data["target"] == PRIMARY_TARGET:
         return (
             f"A főmodell alapján {improvement_text} 1 százalékponttal várhatóan "
             f"kb. {pct:.2f}%-kal csökkentheti az egy jó darabra jutó teljes "
             f"rendszerenergia-fogyasztást."
         )
 
-    if model_data["target"] == "cycle_energy_per_good_part_kwh":
+    if model_data["target"] == SECONDARY_TARGET:
         return (
             f"A ciklusalapú modell alapján {improvement_text} 1 százalékponttal "
             f"várhatóan kb. {pct:.2f}%-kal csökkentheti az egy jó darabra jutó "

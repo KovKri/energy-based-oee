@@ -10,6 +10,11 @@ MIN_GOOD_PARTS_FOR_REGRESSION = 2
 PRIMARY_TARGET = "system_energy_per_good_part_kwh"
 SECONDARY_TARGET = "cycle_energy_per_good_part_kwh"
 
+# Modellbeállítások
+PRIMARY_MODEL_TYPE = "gamma_glm"
+SECONDARY_MODEL_TYPE = "gamma_glm"
+SIGNIFICANCE_LEVEL = 0.05
+
 # Magyarázó változók
 BASE_FEATURE_COLUMNS = [
     "availability",

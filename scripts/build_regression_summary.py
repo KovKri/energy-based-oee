@@ -1,17 +1,18 @@
 import json
-from pathlib import Path
 
 import pandas as pd
 
+from regression_config import (
+    PRIMARY_MODEL_TYPE,
+    PRIMARY_TARGET,
+    REGRESSION_OUTPUT_DIR,
+    SECONDARY_MODEL_TYPE,
+    SECONDARY_TARGET,
+    SIGNIFICANCE_LEVEL,
+)
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-REGRESSION_DIR = BASE_DIR / "analysis_outputs" / "regression"
 
-PRIMARY_TARGET = "system_energy_per_good_part_kwh"
-SECONDARY_TARGET = "cycle_energy_per_good_part_kwh"
-PRIMARY_MODEL = "gamma_glm"
-SECONDARY_MODEL = "gamma_glm"
-SIGNIFICANCE_LEVEL = 0.05
+REGRESSION_DIR = REGRESSION_OUTPUT_DIR
 
 
 def load_csv(filename: str) -> pd.DataFrame:
@@ -29,8 +30,8 @@ def safe_float(value):
 
 def get_model_metrics(metrics_df: pd.DataFrame, target: str, model_type: str) -> dict:
     row = metrics_df[
-        (metrics_df["target"] == target) &
-        (metrics_df["model_type"] == model_type)
+        (metrics_df["target"] == target)
+        & (metrics_df["model_type"] == model_type)
     ].iloc[0]
 
     return {
@@ -47,11 +48,15 @@ def get_model_metrics(metrics_df: pd.DataFrame, target: str, model_type: str) ->
     }
 
 
-def get_significant_coefficients(coeff_df: pd.DataFrame, target: str, model_type: str) -> list[dict]:
+def get_significant_coefficients(
+    coeff_df: pd.DataFrame,
+    target: str,
+    model_type: str,
+) -> list[dict]:
     subset = coeff_df[
-        (coeff_df["target"] == target) &
-        (coeff_df["model_type"] == model_type) &
-        (coeff_df["parameter"] != "const")
+        (coeff_df["target"] == target)
+        & (coeff_df["model_type"] == model_type)
+        & (coeff_df["parameter"] != "const")
     ].copy()
 
     subset["is_significant"] = subset["p_value"] < SIGNIFICANCE_LEVEL
@@ -76,8 +81,8 @@ def get_significant_coefficients(coeff_df: pd.DataFrame, target: str, model_type
 
 def get_sensitivity_rows(sens_df: pd.DataFrame, target: str, model_type: str) -> list[dict]:
     subset = sens_df[
-        (sens_df["target"] == target) &
-        (sens_df["model_type"] == model_type)
+        (sens_df["target"] == target)
+        & (sens_df["model_type"] == model_type)
     ].copy()
 
     subset = subset.sort_values("absolute_effect_rank")
@@ -88,7 +93,9 @@ def get_sensitivity_rows(sens_df: pd.DataFrame, target: str, model_type: str) ->
             {
                 "feature": row["feature"],
                 "beta": safe_float(row["beta"]),
-                "estimated_pct_change_for_1pp": safe_float(row["estimated_pct_change_for_1pp"]),
+                "estimated_pct_change_for_1pp": safe_float(
+                    row["estimated_pct_change_for_1pp"]
+                ),
                 "direction": row["direction"],
                 "p_value": safe_float(row["p_value"]),
                 "absolute_effect_rank": safe_float(row["absolute_effect_rank"]),
@@ -108,7 +115,9 @@ def get_univariate_rows(univariate_df: pd.DataFrame) -> list[dict]:
                 "p_value": safe_float(row["p_value"]),
                 "ci_lower": safe_float(row["ci_lower"]),
                 "ci_upper": safe_float(row["ci_upper"]),
-                "estimated_pct_change_for_1pp": safe_float(row["estimated_pct_change_for_1pp"]),
+                "estimated_pct_change_for_1pp": safe_float(
+                    row["estimated_pct_change_for_1pp"]
+                ),
                 "direction": row["direction"],
                 "aic": safe_float(row["aic"]),
                 "pseudo_r2": safe_float(row["pseudo_r2"]),
@@ -131,8 +140,8 @@ def get_vif_rows(vif_df: pd.DataFrame) -> list[dict]:
 
 
 def build_draft_key_messages(primary_sens: list[dict], secondary_sens: list[dict]) -> dict:
-    primary_sig = [r for r in primary_sens if r["is_significant"]]
-    secondary_sig = [r for r in secondary_sens if r["is_significant"]]
+    primary_sig = [row for row in primary_sens if row["is_significant"]]
+    secondary_sig = [row for row in secondary_sens if row["is_significant"]]
 
     primary_main = primary_sig[0] if primary_sig else None
     secondary_main = secondary_sig[0] if secondary_sig else None
@@ -147,66 +156,72 @@ def build_draft_key_messages(primary_sens: list[dict], secondary_sens: list[dict
         messages["primary_main_message"] = (
             f"A főmodell alapján 1 százalékpontos {primary_main['feature']} javulás "
             f"várhatóan {abs(primary_main['estimated_pct_change_for_1pp']):.3f}%-kal "
-            f"{primary_main['direction']} az egy jó darabra jutó teljes rendszerenergia-fogyasztást."
+            f"{primary_main['direction']} az egy jó darabra jutó teljes "
+            f"rendszerenergia-fogyasztást."
         )
 
     if secondary_main:
         messages["secondary_main_message"] = (
-            f"A ciklusalapú modell alapján 1 százalékpontos {secondary_main['feature']} javulás "
-            f"várhatóan {abs(secondary_main['estimated_pct_change_for_1pp']):.3f}%-kal "
-            f"{secondary_main['direction']} az egy jó darabra jutó ciklusenergia-fogyasztást."
+            f"A ciklusalapú modell alapján 1 százalékpontos "
+            f"{secondary_main['feature']} javulás várhatóan "
+            f"{abs(secondary_main['estimated_pct_change_for_1pp']):.3f}%-kal "
+            f"{secondary_main['direction']} az egy jó darabra jutó "
+            f"ciklusenergia-fogyasztást."
         )
 
     if primary_main and secondary_main:
         messages["comparison_message"] = (
-            f"A két célváltozó összevetése alapján a rendszer szintű energiaintenzitást "
-            f"elsősorban a(z) {primary_main['feature']} befolyásolja, míg a ciklusalapú "
-            f"energiaintenzitásban a(z) {secondary_main['feature']} szerepe erősebb."
+            f"A két célváltozó összevetése alapján a rendszer szintű "
+            f"energiaintenzitást elsősorban a(z) {primary_main['feature']} "
+            f"befolyásolja, míg a ciklusalapú energiaintenzitásban a(z) "
+            f"{secondary_main['feature']} szerepe erősebb."
         )
 
     return messages
 
 
 def build_markdown(summary: dict) -> str:
-    p = summary["primary_model"]
-    s = summary["secondary_model"]
+    primary_model = summary["primary_model"]
+    secondary_model = summary["secondary_model"]
 
     lines = []
     lines.append("# Regressziós összefoglaló")
     lines.append("")
     lines.append("## Főmodell")
-    lines.append(f"- Célváltozó: `{p['target']}`")
-    lines.append(f"- Modell: `{p['model_type']}`")
-    lines.append(f"- Megfigyelések száma: {p['metrics']['n_obs']}")
+    lines.append(f"- Célváltozó: `{primary_model['target']}`")
+    lines.append(f"- Modell: `{primary_model['model_type']}`")
+    lines.append(f"- Megfigyelések száma: {primary_model['metrics']['n_obs']}")
     lines.append(
-        f"- Pseudo R²: {p['metrics']['pseudo_r2']:.6f}"
-        if p["metrics"]["pseudo_r2"] is not None
+        f"- Pseudo R²: {primary_model['metrics']['pseudo_r2']:.6f}"
+        if primary_model["metrics"]["pseudo_r2"] is not None
         else "- Pseudo R²: nincs"
     )
     lines.append("")
     lines.append("### Szignifikáns hatások")
-    for row in p["significant_coefficients"]:
+    for row in primary_model["significant_coefficients"]:
         if row["is_significant"]:
             lines.append(
-                f"- {row['feature']}: koefficiens = {row['coefficient']:.6f}, p = {row['p_value']:.6g}, irány = {row['direction']}"
+                f"- {row['feature']}: koefficiens = {row['coefficient']:.6f}, "
+                f"p = {row['p_value']:.6g}, irány = {row['direction']}"
             )
 
     lines.append("")
     lines.append("## Másodlagos modell")
-    lines.append(f"- Célváltozó: `{s['target']}`")
-    lines.append(f"- Modell: `{s['model_type']}`")
-    lines.append(f"- Megfigyelések száma: {s['metrics']['n_obs']}")
+    lines.append(f"- Célváltozó: `{secondary_model['target']}`")
+    lines.append(f"- Modell: `{secondary_model['model_type']}`")
+    lines.append(f"- Megfigyelések száma: {secondary_model['metrics']['n_obs']}")
     lines.append(
-        f"- Pseudo R²: {s['metrics']['pseudo_r2']:.6f}"
-        if s["metrics"]["pseudo_r2"] is not None
+        f"- Pseudo R²: {secondary_model['metrics']['pseudo_r2']:.6f}"
+        if secondary_model["metrics"]["pseudo_r2"] is not None
         else "- Pseudo R²: nincs"
     )
     lines.append("")
     lines.append("### Szignifikáns hatások")
-    for row in s["significant_coefficients"]:
+    for row in secondary_model["significant_coefficients"]:
         if row["is_significant"]:
             lines.append(
-                f"- {row['feature']}: koefficiens = {row['coefficient']:.6f}, p = {row['p_value']:.6g}, irány = {row['direction']}"
+                f"- {row['feature']}: koefficiens = {row['coefficient']:.6f}, "
+                f"p = {row['p_value']:.6g}, irány = {row['direction']}"
             )
 
     lines.append("")
@@ -225,20 +240,44 @@ def main() -> None:
     secondary_univariate_df = load_csv("secondary_univariate_gamma_glm.csv")
     primary_vif_df = load_csv("primary_vif.csv")
 
-    primary_metrics = get_model_metrics(metrics_df, PRIMARY_TARGET, PRIMARY_MODEL)
-    secondary_metrics = get_model_metrics(metrics_df, SECONDARY_TARGET, SECONDARY_MODEL)
+    primary_metrics = get_model_metrics(
+        metrics_df,
+        PRIMARY_TARGET,
+        PRIMARY_MODEL_TYPE,
+    )
+    secondary_metrics = get_model_metrics(
+        metrics_df,
+        SECONDARY_TARGET,
+        SECONDARY_MODEL_TYPE,
+    )
 
-    primary_coeffs = get_significant_coefficients(coeff_df, PRIMARY_TARGET, PRIMARY_MODEL)
-    secondary_coeffs = get_significant_coefficients(coeff_df, SECONDARY_TARGET, SECONDARY_MODEL)
+    primary_coeffs = get_significant_coefficients(
+        coeff_df,
+        PRIMARY_TARGET,
+        PRIMARY_MODEL_TYPE,
+    )
+    secondary_coeffs = get_significant_coefficients(
+        coeff_df,
+        SECONDARY_TARGET,
+        SECONDARY_MODEL_TYPE,
+    )
 
-    primary_sens = get_sensitivity_rows(sens_df, PRIMARY_TARGET, PRIMARY_MODEL)
-    secondary_sens = get_sensitivity_rows(sens_df, SECONDARY_TARGET, SECONDARY_MODEL)
+    primary_sens = get_sensitivity_rows(
+        sens_df,
+        PRIMARY_TARGET,
+        PRIMARY_MODEL_TYPE,
+    )
+    secondary_sens = get_sensitivity_rows(
+        sens_df,
+        SECONDARY_TARGET,
+        SECONDARY_MODEL_TYPE,
+    )
 
     summary = {
         "significance_level": SIGNIFICANCE_LEVEL,
         "primary_model": {
             "target": PRIMARY_TARGET,
-            "model_type": PRIMARY_MODEL,
+            "model_type": PRIMARY_MODEL_TYPE,
             "metrics": primary_metrics,
             "significant_coefficients": primary_coeffs,
             "sensitivity": primary_sens,
@@ -246,7 +285,7 @@ def main() -> None:
         },
         "secondary_model": {
             "target": SECONDARY_TARGET,
-            "model_type": SECONDARY_MODEL,
+            "model_type": SECONDARY_MODEL_TYPE,
             "metrics": secondary_metrics,
             "significant_coefficients": secondary_coeffs,
             "sensitivity": secondary_sens,
